@@ -1,0 +1,51 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: local_wp
+    ports:
+      - "127.0.0.1:8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER:-wp}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD:-wp}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME:-local_wp}
+    volumes:
+      - ./wp-content:/var/www/html/wp-content
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-net
+
+  db:
+    image: mariadb:11
+    container_name: local_wp_db
+    environment:
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME:-local_wp}
+      MYSQL_USER: ${WORDPRESS_DB_USER:-wp}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD:-wp}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-net
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: local_mailpit
+    ports:
+      - "127.0.0.1:8025:8025"
+    networks:
+      - app-net
+
+volumes:
+  db_data:
+
+networks:
+  app-net:
+    driver: bridge
