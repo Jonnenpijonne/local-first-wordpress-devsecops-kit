@@ -2,7 +2,6 @@
 Local-first DevSecOps starter kit for regulated WordPress development: Docker Compose, privacy-safe data handling, AI boundaries, runbooks and audit evidence templates.
 
 
-# Local-First WordPress DevSecOps Kit
 
 **A lightweight, auditable and recoverable local development model for regulated WordPress-based platforms.**
 
@@ -12,6 +11,7 @@ Local-first DevSecOps starter kit for regulated WordPress development: Docker Co
 ![Governance](https://img.shields.io/badge/Governance-Auditability%20%26%20Recovery-darkblue?style=for-the-badge)
 ![Privacy](https://img.shields.io/badge/Privacy-No%20Production%20Data%20in%20Dev-brightgreen?style=for-the-badge)
 ![AI Boundary](https://img.shields.io/badge/AI%20Boundary-Assistive%20Not%20Autonomous-purple?style=for-the-badge)
+
 
 ---
 
@@ -60,6 +60,49 @@ Docker Compose runtime
 + local AI boundary model
 + developer runbooks
 + evidence templates
+```
+
+---
+
+## Architecture overview
+
+```mermaid
+flowchart TB
+    DEV["Developer workstation"]
+
+    DEV --> GIT["Git / SSH / signed commits"]
+    DEV --> DOCKER["Docker Compose"]
+    DEV --> AI["Local AI tools<br/>Ollama / Open WebUI"]
+
+    DOCKER --> WP["WordPress container"]
+    DOCKER --> DB["MariaDB container"]
+    DOCKER --> MAIL["Mailpit container"]
+    DOCKER --> VOL["Docker volumes<br/>local persistent data"]
+
+    WP --> DB
+    WP --> MAIL
+
+    GOV["Governance docs"]
+    PRIV["Privacy & anonymization docs"]
+    EVID["Evidence templates"]
+
+    GIT --> GOV
+    GIT --> PRIV
+    GIT --> EVID
+
+    PRIV --> DATA["Anonymized / generated dev data"]
+    DATA --> DB
+
+    AI -. "assistive only<br/>no secrets / no prod data" .-> DEV
+    AI -. "docs, logs, troubleshooting" .-> GOV
+
+    classDef local fill:#eef,stroke:#447,stroke-width:1px;
+    classDef governance fill:#efe,stroke:#474,stroke-width:1px;
+    classDef risk fill:#fee,stroke:#944,stroke-width:1px;
+
+    class DEV,GIT,DOCKER,AI,WP,DB,MAIL,VOL local;
+    class GOV,PRIV,EVID governance;
+    class DATA risk;
 ```
 
 ---
@@ -570,6 +613,43 @@ Not allowed:
 
 ---
 
+## Development data flow
+
+```mermaid
+flowchart LR
+    PROD["Production data<br/>(not copied directly)"]
+    REVIEW["Data classification review"]
+    MIN["Minimized extract"]
+    ANON["Anonymization / pseudonymization"]
+    SCAN["Secret scan"]
+    IMPORT["Import into local Docker DB"]
+    VALIDATE["Validation"]
+    EVIDENCE["Evidence log"]
+    DESTROY["Destroy old local dataset"]
+
+    PROD --> REVIEW
+    REVIEW --> MIN
+    MIN --> ANON
+    ANON --> SCAN
+    SCAN --> IMPORT
+    IMPORT --> VALIDATE
+    VALIDATE --> EVIDENCE
+    EVIDENCE --> DESTROY
+
+    BLOCK["External AI / SaaS LLMs"]
+    ANON -. "must not be uploaded<br/>without explicit approval" .-> BLOCK
+
+    classDef safe fill:#eef,stroke:#447,stroke-width:1px;
+    classDef control fill:#efe,stroke:#474,stroke-width:1px;
+    classDef danger fill:#fee,stroke:#944,stroke-width:1px;
+
+    class REVIEW,ANON,SCAN,VALIDATE,EVIDENCE control;
+    class MIN,IMPORT,DESTROY safe;
+    class PROD,BLOCK danger;
+```
+
+---
+
 ## Data classification template
 
 Create `docs/privacy/DATA_CLASSIFICATION_TEMPLATE.md`:
@@ -595,7 +675,7 @@ Create `docs/privacy/DATA_CLASSIFICATION_TEMPLATE.md`:
 
 Create `docs/privacy/DEVELOPMENT_DATA_RULES.md`:
 
-````markdown
+```markdown
 # Development Data Rules
 
 ## Mandatory rules
@@ -610,22 +690,17 @@ Create `docs/privacy/DEVELOPMENT_DATA_RULES.md`:
 
 ## Local dataset lifecycle
 
-```text
 request → classification review → minimized extract → anonymization → secret scan → local import → validation → destruction after replacement
-````
 
 ## Destruction
 
 Use:
 
-```bash
 docker compose down -v
 rm -f anonymized_dump_old.sql
-```
 
 when local data is no longer needed.
-
-````
+```
 
 ---
 
@@ -659,20 +734,15 @@ For relational data, the same source value should map to the same pseudonym acro
 
 Example:
 
-```python
-import hashlib
-
 def stable_pseudonym(value: str) -> str:
+    import hashlib
     return hashlib.sha256(f"project_seed_{value}".encode()).hexdigest()[:12]
-````
 
 ## Secret scan
 
-```bash
 grep -RiE \
   "password|secret|token|BEGIN PRIVATE KEY|sk_live|smtp|license|api[_-]?key" \
   anonymized_dump.sql
-```
 
 If matches are found, fix the anonymization process and regenerate the dataset.
 
@@ -680,15 +750,42 @@ If matches are found, fix the anonymization process and regenerate the dataset.
 
 Record each anonymization run in:
 
-```text
 docs/evidence/ANONYMIZATION_LOG_TEMPLATE.md
 ```
-
-````
 
 ---
 
 ## AI boundary model
+
+```mermaid
+flowchart TB
+    AI["AI assistant"]
+
+    ALLOWED["Allowed"]
+    DENIED["Denied"]
+
+    AI --> ALLOWED
+    AI --> DENIED
+
+    ALLOWED --> DOCS["Draft documentation"]
+    ALLOWED --> LOGS["Explain logs"]
+    ALLOWED --> TESTS["Suggest tests"]
+    ALLOWED --> LOCAL["Assist local troubleshooting"]
+    ALLOWED --> REVIEW["Review non-sensitive config"]
+
+    DENIED --> DEPLOY["Deploy"]
+    DENIED --> MERGE["Merge to protected branches"]
+    DENIED --> TAG["Create releases / tags"]
+    DENIED --> SECRETS["Receive secrets"]
+    DENIED --> PRODDATA["Receive production data"]
+    DENIED --> CONTROLS["Modify production controls"]
+
+    classDef ok fill:#e9f7ef,stroke:#2e7d32,stroke-width:1px;
+    classDef no fill:#fdecea,stroke:#c62828,stroke-width:1px;
+
+    class ALLOWED,DOCS,LOGS,TESTS,LOCAL,REVIEW ok;
+    class DENIED,DEPLOY,MERGE,TAG,SECRETS,PRODDATA,CONTROLS no;
+```
 
 Create `docs/governance/AI_BOUNDARY_MODEL.md`:
 
@@ -752,7 +849,7 @@ Do not paste:
 - confidential internal architecture
 
 unless explicitly approved through governance review.
-````
+```
 
 ---
 
@@ -885,7 +982,7 @@ Create `docs/governance/RISK_REGISTER.md`:
 
 ### `docs/evidence/ANONYMIZATION_LOG_TEMPLATE.md`
 
-````markdown
+```markdown
 # Anonymization Log
 
 | Field | Value |
@@ -904,15 +1001,12 @@ Create `docs/governance/RISK_REGISTER.md`:
 
 ## Commands used
 
-```bash
-# paste commands here
-````
+Paste commands here.
 
 ## Validation notes
 
 Describe how anonymization was verified.
-
-````
+```
 
 ### `docs/evidence/LOCAL_ENVIRONMENT_VALIDATION_CHECKLIST.md`
 
@@ -930,11 +1024,11 @@ Describe how anonymization was verified.
 | No secrets committed | pass / fail |  |
 | Reset command tested | pass / fail |  |
 | Documentation reviewed | pass / fail |  |
-````
+```
 
 ### `docs/evidence/SECRET_SCAN_LOG_TEMPLATE.md`
 
-````markdown
+```markdown
 # Secret Scan Log
 
 | Field | Value |
@@ -948,15 +1042,12 @@ Describe how anonymization was verified.
 
 ## Command
 
-```bash
 ./scripts/scan-secrets.sh .
-````
 
 ## Findings
 
 Document findings or false positives here.
-
-````
+```
 
 ---
 
@@ -966,22 +1057,22 @@ Docker helps, but it does not automatically make a system secure.
 
 Good:
 
-- services are explicit
-- local ports can be bound to localhost
-- dependencies are visible
-- runtime can be rebuilt
-- volumes can be reset
-- network exposure can be reduced
+* services are explicit
+* local ports can be bound to localhost
+* dependencies are visible
+* runtime can be rebuilt
+* volumes can be reset
+* network exposure can be reduced
 
 Bad if misused:
 
-- running everything as root forever
-- exposing all ports
-- storing secrets in compose files
-- copying production uploads
-- using old images without updates
-- assuming local equals safe
-- sending development data to external AI tools
+* running everything as root forever
+* exposing all ports
+* storing secrets in compose files
+* copying production uploads
+* using old images without updates
+* assuming local equals safe
+* sending development data to external AI tools
 
 ---
 
@@ -994,7 +1085,7 @@ Desktop = build / debug / document
 Local AI = assist / explain / summarize
 Repository = source of truth
 Governance docs = rules and boundaries
-````
+```
 
 Local AI is useful for:
 
@@ -1105,3 +1196,4 @@ This project intentionally avoids unnecessary complexity.
 The goal is not to build the biggest platform.
 
 The goal is to build the smallest useful operating model that a team can understand, run, reset, review and improve.
+
