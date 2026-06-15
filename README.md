@@ -14,7 +14,22 @@ Local-first DevSecOps starter kit for regulated WordPress development: Docker Co
 
 
 ---
+## Validation status
 
+Validated locally on Windows with WSL2, Docker Desktop and Git Bash.
+
+Runtime result:
+- WordPress available at `http://localhost:8080`
+- Mailpit available at `http://localhost:8025`
+- MariaDB reached healthy state
+- Docker Compose lifecycle tested: `up`, `ps`, `down`, `up -d`, `exec`
+- WordPress container shell access validated with `docker compose exec wordpress bash`
+- Local Lighthouse audit captured for `http://localhost:8080/wp-admin/plugins.php`
+
+Detailed evidence:
+- `docs/evidence/LOCAL_VALIDATION_2026-06-15.md`
+- `docs/evidence/LIGHTHOUSE_AUDIT_2026-06-15.md`
+- `docs/ops/DOCKER_COMPOSE_LIFECYCLE_AUDIT.md`
 ## Purpose
 
 This repository demonstrates a **local-first DevSecOps development baseline** for WordPress-based platforms that may later need to operate in regulated, privacy-aware or multi-tenant environments.
