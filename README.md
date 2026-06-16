@@ -270,13 +270,6 @@ git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.g
 cd local-first-wordpress-devsecops-kit
 ```
 
-For reviewers who want to test the public reference repository without SSH setup:
-
-```bash
-git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.git
-cd local-first-wordpress-devsecops-kit
-
-```
 
 ### Configure environment
 
@@ -618,6 +611,7 @@ The technical value is not only in the stack.
 The value is in making the stack understandable, recoverable and transferable.
 
 ---
+
 
 ## License
 
