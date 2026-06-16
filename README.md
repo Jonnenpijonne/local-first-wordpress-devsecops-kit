@@ -19,9 +19,9 @@ Local-first DevSecOps starter kit for regulated WordPress development: Docker Co
 
 ## Status: v1.0.0 Local Development Ready
 
-✅ **CI/CD Active** — Automated validation on every push  
+✅ **CI/CD Active** — Automated validation for the local development baseline  
 ✅ **Security Checks** — Container, Python and secret scanning included  
-✅ **Branch Protection** — Required checks before merge  
+✅ **Branch Protection** — Review and status-check model documented  
 ✅ **Release Tagged** — v1.0.0 ready for local development use
 
 ---
@@ -239,8 +239,17 @@ git --version
 
 ### Clone
 
+For developers with GitHub SSH configured:
+
 ```bash
 git clone git@github.com:Jonnenpijonne/local-first-wordpress-devsecops-kit.git
+cd local-first-wordpress-devsecops-kit
+```
+
+For public reviewers or without SSH setup:
+
+```bash
+git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.git
 cd local-first-wordpress-devsecops-kit
 ```
 
@@ -272,30 +281,68 @@ http://localhost:8080
 
 ## CI/CD Workflows
 
-This repository includes automated GitHub Actions workflows:
+This repository includes automated workflows for validating the local development baseline.
 
 ### 1. DevSecOps CI
-Runs on every push and PR:
-- Validates docker-compose.yml syntax
-- Scans for secrets (TruffleHog)
-- Lints shell and Python scripts
-- Builds Docker images
-- Tests full stack startup with `docker compose up`
-- Validates documentation and governance structure
+
+Runs on push and pull request:
+
+- Validates `docker-compose.yml` syntax and service definitions
+- Scans for secrets using TruffleHog and pattern matching
+- Lints shell scripts with ShellCheck
+- Validates Python helper scripts
+- Checks `.env.example` and `.gitignore` structure
+- Builds the Docker Compose services
+- Starts the full stack (`docker compose up -d`) for runtime validation
+- Checks documentation and governance template presence
 
 ### 2. Security Scanning
-Runs weekly and on every push:
-- Container vulnerability scanning (Trivy)
-- Python security scanning (Bandit)
+
+Runs on schedule and repository changes:
+
+- Container vulnerability scanning with Trivy
+- Python security scanning with Bandit
 - Git history secret scanning
 - License compliance check
 - Docker Compose architecture audit
 
-### 3. CD: Publish Stack
-Runs on main branch push:
-- Builds docker-compose stack snapshot
-- Creates versioned artifacts
-- Validates all services
+### 3. Container / Compose Stack Validation
+
+Runs on main branch changes:
+
+- Validates the Compose configuration
+- Builds the stack services
+- Creates a Compose configuration snapshot artifact
+- Validates all services are ready
+
+---
+
+## Architecture overview
+
+```mermaid
+flowchart TB
+    DEV["Developer workstation"]
+
+    DEV --> GIT["Git / SSH / signed commits"]
+    DEV --> DOCKER["Docker Compose"]
+    DEV --> CI["GitHub Actions CI/CD"]
+
+    DOCKER --> WP["WordPress container"]
+    DOCKER --> DB["MariaDB container"]
+    DOCKER --> MAIL["Mailpit container"]
+
+    WP --> DB
+    WP --> MAIL
+
+    CI -.->|validate| DOCKER
+    CI -.->|scan| DOCKER
+
+    classDef local fill:#eef,stroke:#447,stroke-width:1px;
+    classDef automation fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+
+    class DEV,GIT,DOCKER,WP,DB,MAIL local;
+    class CI automation;
+```
 
 ---
 
