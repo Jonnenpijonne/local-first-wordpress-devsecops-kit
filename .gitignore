@@ -8,10 +8,6 @@ wp-content/uploads/
 wp-content/cache/
 wp-content/upgrade/
 wp-content/debug.log
-wp-content/plugins/
-wp-content/themes/
-wp-content/languages/
-wp-content/index.php
 
 # Database dumps / backups
 *.sql
