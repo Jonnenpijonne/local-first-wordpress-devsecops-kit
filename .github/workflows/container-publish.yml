@@ -36,7 +36,7 @@ jobs:
 
       - name: Build stack from docker-compose
         run: |
-          docker compose build --no-push
+          docker compose build
           echo "✓ Stack images built successfully"
 
       - name: Create docker-compose snapshot
