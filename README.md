@@ -251,6 +251,13 @@ For public reviewers or without SSH setup:
 ```bash
 git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.git
 cd local-first-wordpress-devsecops-kit
+
+For reviewers who want to test the public reference repository without SSH setup:
+
+```bash
+git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.git
+cd local-first-wordpress-devsecops-kit
+
 ```
 
 ### Configure environment
