@@ -41,7 +41,6 @@ Detailed evidence:
 - `docs/evidence/LOCAL_VALIDATION_2026-06-15.md`
 - `docs/evidence/LIGHTHOUSE_AUDIT_2026-06-15.md`
 - `docs/ops/DOCKER_COMPOSE_LIFECYCLE_AUDIT.md`
-
 ---
 
 ## Purpose
@@ -271,6 +270,7 @@ git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.g
 cd local-first-wordpress-devsecops-kit
 ```
 
+
 ### Configure environment
 
 ```bash
@@ -374,24 +374,6 @@ The stack includes:
 * Custom Docker network for inter-service communication
 
 Key principle: **all ports bind to localhost (`127.0.0.1`) to reduce accidental network exposure.**
-
-### Why localhost binding matters
-
-The Compose stack binds exposed services to `127.0.0.1` instead of all network interfaces.
-
-Use:
-
-```yaml
-127.0.0.1:8080:80
-```
-
-instead of:
-
-```yaml
-8080:80
-```
-
-This reduces accidental exposure outside the local machine and keeps the development stack local-first by default.
 
 ---
 
@@ -630,23 +612,6 @@ The value is in making the stack understandable, recoverable and transferable.
 
 ---
 
-## What this proves
-
-This repository demonstrates that a small local development environment can still include:
-
-* repeatable setup
-* controlled reset and rebuild routines
-* localhost-only exposure by default
-* privacy-aware development rules
-* AI usage boundaries
-* CI/CD validation
-* audit evidence and runbook thinking
-
-The value is not the WordPress stack alone.
-
-The value is the operating model around it.
-
----
 
 ## License
 
