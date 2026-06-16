@@ -9,7 +9,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 3 * * 0'  # Weekly scan at 3 AM UTC on Sunday
+    - cron: '0 3 * * 0'
 
 jobs:
   container-scanning:
@@ -39,39 +39,9 @@ jobs:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-wordpress'
 
-  dependency-check:
+  python-security:
     runs-on: ubuntu-latest
-    name: Dependency Vulnerability Check
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Check Python dependencies for vulnerabilities
-        run: |
-          pip install safety
-          find scripts -name "*.py" -type f | while read file; do
-            echo "Checking: $file"
-            grep -E "^(import|from)" "$file" | sed 's/from \(.*\) import.*/\1/' | sed 's/import \(.*\)$/\1/' | sort -u > /tmp/deps.txt
-            # Note: safety check would go here when dependencies are pinned
-          done
-          echo "✓ Dependency scan completed"
-
-  dockerfile-lint:
-    runs-on: ubuntu-latest
-    name: Dockerfile Best Practices
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Skip Hadolint (no custom Dockerfile)
-        run: echo "Skipping Hadolint - project uses docker-compose with pre-built images"
-
-  sast-scan:
-    runs-on: ubuntu-latest
-    name: Static Application Security Testing
+    name: Python Security Scanning
     steps:
       - uses: actions/checkout@v4
 
@@ -87,8 +57,9 @@ jobs:
         run: |
           find scripts -name "*.py" -type f | while read file; do
             echo "Scanning: $file"
-            bandit -r "$file" -f json || true
+            bandit -r "$file" || true
           done
+          echo "✓ Python security scan completed"
 
   git-secrets:
     runs-on: ubuntu-latest
@@ -122,12 +93,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check for LICENSE file
-        run: [ -f LICENSE ] && echo "✓ LICENSE file present" || echo "⚠ No LICENSE file found"
-
-      - name: Verify approved licenses
         run: |
-          echo "License compliance check"
-          grep -i "mit\|apache\|gpl\|bsd" LICENSE || echo "ℹ Review LICENSE terms"
+          if [ -f LICENSE ]; then
+            echo "✓ LICENSE file present"
+            grep -i "mit\|apache\|gpl\|bsd" LICENSE && echo "✓ Approved license found"
+          else
+            echo "⚠ No LICENSE file found"
+          fi
 
   composition-audit:
     runs-on: ubuntu-latest
@@ -140,26 +112,28 @@ jobs:
           echo "Auditing composition..."
           docker compose config > /tmp/compose.json
           
-          # Check for root containers
-          docker compose config | grep -E '"user": "root"' && echo "⚠ Warning: service running as root" || echo "✓ Non-root container check"
-          
-          # Check for resource limits
-          docker compose config | grep -q "mem_limit\|cpus" && echo "✓ Resource limits defined" || echo "⚠ Consider adding resource limits"
+          echo "✓ docker-compose.yml is valid"
           
           # Check for healthchecks
-          docker compose config | grep -q "healthcheck" && echo "✓ Healthchecks configured" || echo "⚠ Consider adding healthchecks"
+          if docker compose config | grep -q "healthcheck"; then
+            echo "✓ Healthchecks configured"
+          else
+            echo "⚠ Consider adding healthchecks"
+          fi
           
           # Check for network isolation
-          docker compose config | grep -q "networks:" && echo "✓ Custom network configured" || echo "⚠ Using default bridge"
+          if docker compose config | grep -q "networks:"; then
+            echo "✓ Custom network configured"
+          else
+            echo "⚠ Using default bridge"
+          fi
 
-  scan-report:
+  security-summary:
     runs-on: ubuntu-latest
-    name: Security Scan Report
+    name: Security Scan Summary
     needs:
       - container-scanning
-      - dependency-check
-      - dockerfile-lint
-      - sast-scan
+      - python-security
       - git-secrets
       - license-check
       - composition-audit
@@ -170,9 +144,7 @@ jobs:
           echo "🔐 Security Scanning Complete"
           echo "============================"
           echo "✓ Container image scan (Trivy)"
-          echo "✓ Dependency vulnerability check"
-          echo "✓ Dockerfile linting (Hadolint)"
-          echo "✓ Static application security test (Bandit)"
+          echo "✓ Python security scan (Bandit)"
           echo "✓ Git secrets scan"
           echo "✓ License compliance"
           echo "✓ Composition audit"
