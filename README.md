@@ -41,6 +41,7 @@ Detailed evidence:
 - `docs/evidence/LOCAL_VALIDATION_2026-06-15.md`
 - `docs/evidence/LIGHTHOUSE_AUDIT_2026-06-15.md`
 - `docs/ops/DOCKER_COMPOSE_LIFECYCLE_AUDIT.md`
+
 ---
 
 ## Purpose
@@ -270,14 +271,6 @@ git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.g
 cd local-first-wordpress-devsecops-kit
 ```
 
-For reviewers who want to test the public reference repository without SSH setup:
-
-```bash
-git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.git
-cd local-first-wordpress-devsecops-kit
-
-```
-
 ### Configure environment
 
 ```bash
@@ -381,6 +374,24 @@ The stack includes:
 * Custom Docker network for inter-service communication
 
 Key principle: **all ports bind to localhost (`127.0.0.1`) to reduce accidental network exposure.**
+
+### Why localhost binding matters
+
+The Compose stack binds exposed services to `127.0.0.1` instead of all network interfaces.
+
+Use:
+
+```yaml
+127.0.0.1:8080:80
+```
+
+instead of:
+
+```yaml
+8080:80
+```
+
+This reduces accidental exposure outside the local machine and keeps the development stack local-first by default.
 
 ---
 
