@@ -19,9 +19,9 @@ Local-first DevSecOps starter kit for regulated WordPress development: Docker Co
 
 ## Status: v1.0.0 Local Development Ready
 
-✅ **CI/CD Active** — Automated validation for the local development baseline  
-✅ **Security Checks** — Container, Python and secret scanning included  
-✅ **Branch Protection** — Review and status-check model documented  
+✅ **CI/CD Active** — Automated validation for the local development baseline
+✅ **Security Checks** — Container, Python and secret scanning included
+✅ **Branch Protection** — Review and status-check model documented
 ✅ **Release Tagged** — v1.0.0 ready for local development use
 
 ## Local validation evidence
@@ -30,17 +30,18 @@ This repository has been validated locally on Windows with WSL2, Docker Desktop 
 
 Validated runtime state:
 
-- WordPress available at `http://localhost:8080`
-- Mailpit available at `http://localhost:8025`
-- MariaDB reached healthy state
-- Docker Compose lifecycle tested: `up`, `ps`, `down`, `up -d`, `exec`
-- WordPress container shell access validated with `docker compose exec wordpress bash`
+* WordPress available at `http://localhost:8080`
+* Mailpit available at `http://localhost:8025`
+* MariaDB reached healthy state
+* Docker Compose lifecycle tested: `up`, `ps`, `down`, `up -d`, `exec`
+* WordPress container shell access validated with `docker compose exec wordpress bash`
 
 Detailed evidence:
 
-- `docs/evidence/LOCAL_VALIDATION_2026-06-15.md`
-- `docs/evidence/LIGHTHOUSE_AUDIT_2026-06-15.md`
-- `docs/ops/DOCKER_COMPOSE_LIFECYCLE_AUDIT.md`
+* `docs/evidence/LOCAL_VALIDATION_2026-06-15.md`
+* `docs/evidence/LIGHTHOUSE_AUDIT_2026-06-15.md`
+* `docs/ops/DOCKER_COMPOSE_LIFECYCLE_AUDIT.md`
+
 ---
 
 ## Purpose
@@ -270,7 +271,6 @@ git clone https://github.com/Jonnenpijonne/local-first-wordpress-devsecops-kit.g
 cd local-first-wordpress-devsecops-kit
 ```
 
-
 ### Configure environment
 
 ```bash
@@ -305,33 +305,33 @@ This repository includes automated workflows for validating the local developmen
 
 Runs on push and pull request:
 
-- Validates `docker-compose.yml` syntax and service definitions
-- Scans for secrets using TruffleHog and pattern matching
-- Lints shell scripts with ShellCheck
-- Validates Python helper scripts
-- Checks `.env.example` and `.gitignore` structure
-- Builds the Docker Compose services
-- Starts the full stack (`docker compose up -d`) for runtime validation
-- Checks documentation and governance template presence
+* Validates `docker-compose.yml` syntax and service definitions
+* Scans for secrets using TruffleHog and pattern matching
+* Lints shell scripts with ShellCheck
+* Validates Python helper scripts
+* Checks `.env.example` and `.gitignore` structure
+* Builds the Docker Compose services
+* Starts the full stack (`docker compose up -d`) for runtime validation
+* Checks documentation and governance template presence
 
 ### 2. Security Scanning
 
 Runs on schedule and repository changes:
 
-- Container vulnerability scanning with Trivy
-- Python security scanning with Bandit
-- Git history secret scanning
-- License compliance check
-- Docker Compose architecture audit
+* Container vulnerability scanning with Trivy
+* Python security scanning with Bandit
+* Git history secret scanning
+* License compliance check
+* Docker Compose architecture audit
 
 ### 3. Container / Compose Stack Validation
 
 Runs on main branch changes:
 
-- Validates the Compose configuration
-- Builds the stack services
-- Creates a Compose configuration snapshot artifact
-- Validates all services are ready
+* Validates the Compose configuration
+* Builds the stack services
+* Creates a Compose configuration snapshot artifact
+* Validates all services are ready
 
 ---
 
@@ -536,34 +536,36 @@ Production data must not be copied directly into local development.
 
 **AI is assistive, not autonomous.**
 
+See `docs/AI_WORKFLOW.md` for the detailed AI-assisted workflow guide, including permission posture, session phases and rollback examples.
+
 AI can support development, documentation and troubleshooting, but it must not independently control delivery, production access or sensitive data movement.
 
 ### Allowed
 
 AI may assist with:
 
-- documentation drafts
-- local troubleshooting
-- explaining logs
-- generating test ideas
-- summarizing architecture
-- suggesting scripts
-- reviewing non-sensitive configuration
-- helping with local development workflows
+* documentation drafts
+* local troubleshooting
+* explaining logs
+* generating test ideas
+* summarizing architecture
+* suggesting scripts
+* reviewing non-sensitive configuration
+* helping with local development workflows
 
 ### Not allowed
 
 AI must **not** independently:
 
-- deploy
-- merge to protected branches
-- create release tags
-- archive repositories
-- modify production controls
-- receive secrets
-- receive raw production data
-- receive local anonymized datasets through external SaaS tools without explicit approval
-- bypass governance review
+* deploy
+* merge to protected branches
+* create release tags
+* archive repositories
+* modify production controls
+* receive secrets
+* receive raw production data
+* receive local anonymized datasets through external SaaS tools without explicit approval
+* bypass governance review
 
 ---
 
@@ -611,7 +613,6 @@ The technical value is not only in the stack.
 The value is in making the stack understandable, recoverable and transferable.
 
 ---
-
 
 ## License
 
